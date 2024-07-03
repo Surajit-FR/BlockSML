@@ -1,4 +1,3 @@
-import React from 'react';
 import { Grid, Container } from '@mui/material';
 import PlanCard from './PlanCard';
 
@@ -37,7 +36,7 @@ const plans = [
     },
 ];
 
-const Pricing: React.FC = () => {
+const Pricing = (): JSX.Element => {
     return (
         <Container
             maxWidth={false}

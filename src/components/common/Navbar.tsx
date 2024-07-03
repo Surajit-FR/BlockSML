@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -45,7 +44,7 @@ const Logo = styled('img')({
     width: '100px',
 });
 
-const Navbar: React.FC = () => {
+const Navbar = (): JSX.Element => {
     return (
         <StyledAppBar position="static">
             <Toolbar>

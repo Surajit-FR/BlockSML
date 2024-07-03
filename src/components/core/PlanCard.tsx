@@ -1,4 +1,3 @@
-import React from 'react';
 import { Button, Card, CardContent, CardHeader, Typography, Box } from '@mui/material';
 import { styled } from '@mui/system';
 import { darken } from '@mui/system';
@@ -34,7 +33,7 @@ const PlanButton = styled(Button)(({ theme }) => {
     };
 });
 
-const PlanCard: React.FC<PlanProps> = ({ plan }) => {
+const PlanCard = ({ plan }: PlanProps): JSX.Element => {
     return (
         <Card sx={{ minHeight: '100px', backgroundColor: '#fff', borderRadius: 1, boxShadow: 10 }}>
             <CardHeader
