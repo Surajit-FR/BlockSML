@@ -2,6 +2,8 @@ import { Button, Card, CardContent, CardHeader, Typography, Box } from '@mui/mat
 import { styled } from '@mui/system';
 import { darken } from '@mui/system';
 import { Link } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import { REACT_APP_PUBLISHABLE_KEY } from '../../../config/App.config';
 
 interface PlanProps {
     plan: {
@@ -33,7 +35,47 @@ const PlanButton = styled(Button)(({ theme }) => {
     };
 });
 
+
 const PlanCard = ({ plan }: PlanProps): JSX.Element => {
+
+    // Payment integration
+    const handlePayment = async () => {
+        try {
+            const stripe = await loadStripe(REACT_APP_PUBLISHABLE_KEY);
+            if (!stripe) {
+                throw new Error("Stripe could not be loaded.");
+            }
+
+            const body = {
+                product: plan,
+            };
+            const headers = {
+                "Content-Type": "application/json"
+            };
+
+            const resp = await fetch("https://be53-122-162-10-91.ngrok-free.app/user/api/create-checkout-session", {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify(body),
+            });
+
+            if (!resp.ok) {
+                throw new Error("Failed to create checkout session.");
+            }
+
+            const session = await resp.json();
+            const result = await stripe.redirectToCheckout({
+                sessionId: session.id
+            });
+
+            if (result?.error) {
+                console.error("Redirect to checkout error:", result.error);
+            }
+        } catch (error) {
+            console.error("Error in payment integration:", error);
+        }
+    };
+
     return (
         <Card sx={{ minHeight: '100px', backgroundColor: '#fff', borderRadius: 1, boxShadow: 10 }}>
             <CardHeader
@@ -102,7 +144,7 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
                 </div>
                 <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                     {plan.name !== 'Custom' ? (
-                        <PlanButton variant="contained">Subscribe</PlanButton>
+                        <PlanButton variant="contained" onClick={handlePayment}>Subscribe</PlanButton>
                     ) : (
                         <PlanButton variant="contained">Contact Us</PlanButton>
                     )}
