@@ -9,7 +9,7 @@ const plans = [
         chatInference: 'Unlimited',
         imageGeneration: 'Up to 10',
         videoSummarization: 'Unlimited',
-        price: 1,
+        price: 5,
     },
     {
         _id: "02",

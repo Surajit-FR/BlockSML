@@ -3,7 +3,7 @@ import { styled } from '@mui/system';
 import { darken } from '@mui/system';
 import { Link } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
-import { REACT_APP_PUBLISHABLE_KEY } from '../../../config/App.config';
+import { REACT_APP_BASE_URL, REACT_APP_PUBLISHABLE_KEY } from '../../../config/App.config';
 
 interface PlanProps {
     plan: {
@@ -53,7 +53,7 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
                 "Content-Type": "application/json"
             };
 
-            const resp = await fetch("https://be53-122-162-10-91.ngrok-free.app/user/api/create-checkout-session", {
+            const resp = await fetch(`${REACT_APP_BASE_URL}/user/api/create-checkout-session`, {
                 method: "POST",
                 headers: headers,
                 body: JSON.stringify(body),
