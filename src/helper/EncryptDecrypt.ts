@@ -15,6 +15,7 @@ export const DecryptData = (data: string): any | null => {
     try {
         const decryptedBytes = CryptoJS.AES.decrypt(data, REACT_APP_SECRET_KEY);
         const decryptedData = decryptedBytes.toString(CryptoJS.enc.Utf8);
+        
         // Check if decryptedData is valid JSON
         return isValidJSON(decryptedData) ? JSON.parse(decryptedData) : decryptedData;
     } catch (error) {

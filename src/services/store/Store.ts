@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import AuthSlice from "../slices/AuthSlice";
-import UtilitySlice from "../slices/UtilitySlice";
+import PaymentSlice from "../slices/PaymentSlice";
 
 export const Store = configureStore({
     reducer: {
         authSlice: AuthSlice,
-        utilitySlice: UtilitySlice,
+        paymentSlice: PaymentSlice,
     },
     middleware: (getDefaultMiddleware: any) => getDefaultMiddleware({ serializableCheck: false })
 });
