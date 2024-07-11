@@ -94,7 +94,14 @@ export interface CustomJwtPayload extends JwtPayload {
     name?: string;
     email?: string;
     password?: string;
-    subscription?: string | null;
+    subscription: {
+        sessionId: string;
+        planId: string;
+        planType: string;
+        planStartDate: string | null;
+        planEndDate: string | null;
+        planDuration: string;
+    } | null;
     is_subscribed?: boolean;
     createdAt?: string;
     updatedAt?: string;
@@ -125,6 +132,13 @@ export interface SubscriptionPlanData {
     createdAt: string;
     updatedAt: string;
     __v: number;
+}
+
+// PaymentSuccessParams
+export type PaymentSuccessParams = {
+    header: CustomHeadersType;
+    navigate: any;
+    _sessionID: string;
 }
 
 // Common response type for authentication

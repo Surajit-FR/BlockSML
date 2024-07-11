@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { GETSUBSPLANS } from "../api/Api";
-import { CustomHeadersType } from "../../config/DataTypes";
+import { GETSUBSPLANS, PAYMENTSUCCESS } from "../api/Api";
+import { CustomHeadersType, PaymentSuccessParams } from "../../config/DataTypes";
+import { EncryptData } from "../../helper/EncryptDecrypt";
 
 // getSubsPlans thunk
 export const getSubsPlans = createAsyncThunk("/user/api/get-subscription-plans", async (header: CustomHeadersType, { rejectWithValue }): Promise<any> => {
@@ -9,6 +10,25 @@ export const getSubsPlans = createAsyncThunk("/user/api/get-subscription-plans",
         const result: any = response?.data;
         if (result?.success) {
             return result
+        };
+    } catch (exc: any) {
+        const err: any = rejectWithValue(exc.response.data);
+        return err;
+    }
+});
+
+// paymentSuccess thunk
+export const paymentSuccess = createAsyncThunk("/user/api/v1/payment-success", async ({ _sessionID, header, navigate }: PaymentSuccessParams, { rejectWithValue }): Promise<any> => {
+    try {
+        const response = await PAYMENTSUCCESS({ _sessionID }, header);
+        const result: any = response?.data;
+        if (result?.success) {
+            const user = EncryptData(result?.data);
+            const token = EncryptData(result?.token);
+
+            window.localStorage.setItem("token", token);
+            window.localStorage.setItem("user", user);
+            navigate("/pricing");
         };
     } catch (exc: any) {
         const err: any = rejectWithValue(exc.response.data);

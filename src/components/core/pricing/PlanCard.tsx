@@ -1,10 +1,10 @@
 import { Button, Card, CardContent, CardHeader, Typography, Box } from '@mui/material';
-import { styled } from '@mui/system';
-import { darken } from '@mui/system';
+import { styled, darken } from '@mui/system';
 import { Link } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { REACT_APP_BASE_URL, REACT_APP_PUBLISHABLE_KEY } from '../../../config/App.config';
 import { SubscriptionPlanData } from '../../../config/DataTypes';
+import { DecryptData } from '../../../helper/EncryptDecrypt';
 
 interface PlanProps {
     plan: SubscriptionPlanData;
@@ -26,8 +26,31 @@ const PlanButton = styled(Button)(({ theme }) => {
     };
 });
 
+const ActiveDiv = styled("div")(({ theme }) => {
+    const backgroundColor = '#1bd764';
+
+    return {
+        padding: '10px 30px',
+        textTransform: 'uppercase',
+        fontWeight: 500,
+        backgroundColor,
+        borderRadius: 4,
+        color: '#fff',
+        width: "100%",
+        height: "100%"
+    };
+});
+
 
 const PlanCard = ({ plan }: PlanProps): JSX.Element => {
+    const token: string | null = window.localStorage.getItem("token");
+    const _TOKEN = DecryptData(token ?? 'null');
+
+    const user: string | null = window.localStorage.getItem("user");
+    const _USER_DATA = DecryptData(user ?? 'null');
+
+    // Determine if this plan matches the active subscription
+    const isActive = _USER_DATA?.subscription?.planId === plan?.subscription?.stripe_price_id;
 
     // Payment integration
     const handlePayment = async () => {
@@ -41,10 +64,11 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
                 product: plan,
             };
             const headers = {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${_TOKEN}`
             };
 
-            const resp = await fetch(`${REACT_APP_BASE_URL}/user/api/create-checkout-session`, {
+            const resp: any = await fetch(`${REACT_APP_BASE_URL}/user/api/v1/create-checkout-session`, {
                 method: "POST",
                 headers: headers,
                 body: JSON.stringify(body),
@@ -67,11 +91,16 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
         }
     };
 
+
     return (
         <>
-            <Card sx={{ minHeight: '100px', backgroundColor: '#fff', borderRadius: 1, boxShadow: 10 }}>
+            <Card sx={{
+                minHeight: '100px',
+                backgroundColor: isActive ? '#ccf6dc' : '#fff',
+                boxShadow: isActive ? '0px 5px 20px rgba(0, 0, 0, 0.2)' : '0px 3px 15px rgba(0, 0, 0, 0.1)',
+            }}>
                 <CardHeader
-                    sx={{ backgroundColor: '#0074D4', color: '#fff', textAlign: 'center' }}
+                    sx={{ backgroundColor: isActive ? '#1bd764' : '#0074D4', color: '#fff', textAlign: 'center' }}
                     title={<Typography variant="h6" component="h2">{plan?.subscription?.name}</Typography>}
                 />
                 <CardContent>
@@ -134,15 +163,19 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
                         </Typography>
                         <Typography variant="h6" component="h4" sx={{ color: '#aaa', fontSize: '14px' }}>Per month</Typography>
                     </div>
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                        {plan?.subscription?.name !== 'Custom' ? (
-                            <PlanButton variant="contained" onClick={handlePayment}>Subscribe</PlanButton>
-                        ) : (
-                            <PlanButton variant="contained">Contact Us</PlanButton>
-                        )}
-                    </Box>
+                    {
+                        isActive ?
+                            <ActiveDiv sx={{ display: 'flex', justifyContent: 'center' }}>Subscribed</ActiveDiv>
+                            : <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                                {plan?.subscription?.name !== 'Custom' ? (
+                                    <PlanButton variant="contained" onClick={handlePayment}>Subscribe</PlanButton>
+                                ) : (
+                                    <PlanButton variant="contained">Contact Us</PlanButton>
+                                )}
+                            </Box>
+                    }
                 </CardContent>
-            </Card>
+            </Card >
         </>
     );
 };

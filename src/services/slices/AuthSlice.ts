@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { LOGIN, SIGNUP } from "../api/Api";
-import { AuthResponse, UserAuth_Props } from "../../config/DataTypes";
+import { GETUSERDETAILS, LOGIN, SIGNUP } from "../api/Api";
+import { AuthResponse, CustomHeadersType, UserAuth_Props } from "../../config/DataTypes";
 import { EncryptData } from "../../helper/EncryptDecrypt";
 
 // loginUser thunk
@@ -39,6 +39,18 @@ export const signupUser = createAsyncThunk("/api/signup", async ({ data, navigat
 
             return result;
         }
+    } catch (exc: any) {
+        const err: any = rejectWithValue(exc.response.data);
+        return err;
+    }
+});
+
+// getUserDetails thunk
+export const getUserDetails = createAsyncThunk("/user/api/v1/payment-success", async (header: CustomHeadersType, { rejectWithValue }): Promise<any> => {
+    try {
+        const response = await GETUSERDETAILS(header);
+        const result: any = response?.data;
+        return result;
     } catch (exc: any) {
         const err: any = rejectWithValue(exc.response.data);
         return err;
@@ -89,6 +101,21 @@ const AuthSlice = createSlice({
             state.user_data = user_data;
         })
         builder.addCase(signupUser.rejected, (state, { payload }) => {
+            state.auth_loading = false;
+            const err: any | null = payload;
+            state.error = err;
+        })
+
+        // getUserDetails states
+        builder.addCase(getUserDetails.pending, (state) => {
+            state.auth_loading = true;
+        })
+        builder.addCase(getUserDetails.fulfilled, (state, { payload }) => {
+            state.auth_loading = false;
+            const user_data: any = payload?.data;
+            state.user_data = user_data;
+        })
+        builder.addCase(getUserDetails.rejected, (state, { payload }) => {
             state.auth_loading = false;
             const err: any | null = payload;
             state.error = err;

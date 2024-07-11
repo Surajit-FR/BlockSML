@@ -1,10 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import Pricing from '../pages/others/Pricing';
-import Success from '../pages/others/Success';
 import { DecryptData } from '../helper/EncryptDecrypt';
 import { useMemo } from 'react';
-import Cancel from '../pages/others/Cancel';
 
 
 const AllRoutes = (): JSX.Element => {
@@ -21,8 +19,6 @@ const AllRoutes = (): JSX.Element => {
             <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='/pricing' element={<Pricing header={header} />} />
-                <Route path='/success' element={<Success />} />
-                <Route path='/cancel' element={<Cancel />} />
             </Routes>
         </>
     );
