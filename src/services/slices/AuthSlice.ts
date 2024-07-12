@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { GETUSERDETAILS, LOGIN, SIGNUP } from "../api/Api";
 import { AuthResponse, CustomHeadersType, UserAuth_Props } from "../../config/DataTypes";
 import { EncryptData } from "../../helper/EncryptDecrypt";
+import { showToast } from "../../helper/Toast";
 
 // loginUser thunk
 export const loginUser = createAsyncThunk("/api/login", async ({ data, navigate }: UserAuth_Props, { rejectWithValue }): Promise<AuthResponse | any> => {
@@ -20,6 +21,12 @@ export const loginUser = createAsyncThunk("/api/login", async ({ data, navigate 
         }
     } catch (exc: any) {
         const err: any = rejectWithValue(exc.response.data);
+        showToast({
+            message: err?.payload?.message,
+            type: 'error',
+            durationTime: 3000,
+            position: 'top-right',
+        });
         return err;
     }
 });
@@ -41,6 +48,12 @@ export const signupUser = createAsyncThunk("/api/signup", async ({ data, navigat
         }
     } catch (exc: any) {
         const err: any = rejectWithValue(exc.response.data);
+        showToast({
+            message: err?.payload?.message,
+            type: 'error',
+            durationTime: 3000,
+            position: 'top-right',
+        });
         return err;
     }
 });

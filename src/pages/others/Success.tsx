@@ -43,7 +43,6 @@ const Success = (): JSX.Element => {
 
     // handleProceed func.
     const handleProceed = () => {
-        console.log("click");
         dispatch(paymentSuccess({ _sessionID, header, navigate }));
     }
 

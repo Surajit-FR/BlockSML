@@ -5,6 +5,9 @@ import { loadStripe } from '@stripe/stripe-js';
 import { REACT_APP_BASE_URL, REACT_APP_PUBLISHABLE_KEY } from '../../../config/App.config';
 import { SubscriptionPlanData } from '../../../config/DataTypes';
 import { DecryptData } from '../../../helper/EncryptDecrypt';
+import { useEffect, useState } from 'react';
+import { showToast } from '../../../helper/Toast';
+import axios from 'axios';
 
 interface PlanProps {
     plan: SubscriptionPlanData;
@@ -48,9 +51,7 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
 
     const user: string | null = window.localStorage.getItem("user");
     const _USER_DATA = DecryptData(user ?? 'null');
-
-    // Determine if this plan matches the active subscription
-    const isActive = _USER_DATA?.subscription?.planId === plan?.subscription?.stripe_price_id;
+    const [isActive, setIsActive] = useState<boolean>()
 
     // Payment integration
     const handlePayment = async () => {
@@ -63,22 +64,15 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
             const body = {
                 product: plan,
             };
+
             const headers = {
                 "Content-Type": "application/json",
                 "authorization": `Bearer ${_TOKEN}`
             };
 
-            const resp: any = await fetch(`${REACT_APP_BASE_URL}/user/api/v1/create-checkout-session`, {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify(body),
-            });
+            const response = await axios.post(`${REACT_APP_BASE_URL}/user/api/v1/create-checkout-session`, body, { headers });
 
-            if (!resp.ok) {
-                throw new Error("Failed to create checkout session.");
-            }
-
-            const session = await resp.json();
+            const session = response.data;
             const result = await stripe.redirectToCheckout({
                 sessionId: session.id
             });
@@ -86,11 +80,20 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
             if (result?.error) {
                 console.error("Redirect to checkout error:", result.error);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error in payment integration:", error);
+            showToast({
+                message: error?.response?.data?.message,
+                type: 'error',
+                durationTime: 4000,
+                position: 'top-center',
+            });
         }
     };
 
+    useEffect(() => {
+        setIsActive(_USER_DATA?.subscription?.planId === plan?.subscription?.stripe_price_id);
+    }, [_USER_DATA?.subscription?.planId, plan?.subscription?.stripe_price_id]);
 
     return (
         <>

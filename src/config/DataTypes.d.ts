@@ -38,12 +38,23 @@ export type UserAuth_Props = {
     resetForm?: Function;
 };
 
+// UserSubscription type
+export type UserSubscription = {
+    customerId: string;
+    sessionId: string;
+    planId: string;
+    planType: string;
+    planStartDate: string;
+    planEndDate: string;
+    planDuration: string;
+};
+
 // UserData type
 export type UserData = {
     _id: string;
     name: string;
     email: string;
-    subscription: string | null;
+    subscription: UserSubscription;
     is_subscribed: boolean;
     createdAt: string;
     updatedAt: string;

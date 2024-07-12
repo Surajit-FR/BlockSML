@@ -52,10 +52,7 @@ const Logo = styled('img')({
 const Navbar = (): JSX.Element => {
     const token: string | null = window.localStorage.getItem('token');
     const _TOKEN = DecryptData(token ?? 'null');
-
-    const user: string | null = window.localStorage.getItem("user");
-    const _USER_DATA = DecryptData(user ?? 'null');
-
+    
     const dispatch: Dispatch<any> = useDispatch();
     const navigate: any = useNavigate();
 
@@ -100,7 +97,7 @@ const Navbar = (): JSX.Element => {
                 {_TOKEN ? (
                     <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                         <StyledLink to="/profile" style={{ marginLeft: '10px' }}>
-                            {_USER_DATA?.name}
+                            My Profile
                         </StyledLink>
                         <StyledLink
                             to="#"

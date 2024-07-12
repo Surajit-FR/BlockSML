@@ -3,6 +3,7 @@ import Home from '../pages/Home';
 import Pricing from '../pages/others/Pricing';
 import { DecryptData } from '../helper/EncryptDecrypt';
 import { useMemo } from 'react';
+import Profile from '../pages/others/Profile';
 
 
 const AllRoutes = (): JSX.Element => {
@@ -19,6 +20,7 @@ const AllRoutes = (): JSX.Element => {
             <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='/pricing' element={<Pricing header={header} />} />
+                <Route path='/profile' element={<Profile _TOKEN={_TOKEN} />} />
             </Routes>
         </>
     );
