@@ -65,7 +65,6 @@ const Login = (): JSX.Element => {
                                     label="Email Address"
                                     name="credential"
                                     autoComplete="credential"
-                                    autoFocus
                                     value={values.credential}
                                     onChange={handleChange}
                                     onBlur={handleBlur}

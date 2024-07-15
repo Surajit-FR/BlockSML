@@ -66,7 +66,6 @@ const Signup = (): JSX.Element => {
                                     label="Full Name"
                                     name="name"
                                     autoComplete="name"
-                                    autoFocus
                                     value={values.name}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
