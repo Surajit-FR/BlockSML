@@ -82,7 +82,6 @@ const Signup = (): JSX.Element => {
                                     label="Email Address"
                                     name="email"
                                     autoComplete="email"
-                                    autoFocus
                                     value={values.email}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
