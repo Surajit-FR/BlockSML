@@ -40,6 +40,7 @@ export type UserAuth_Props = {
 
 // UserSubscription type
 export type UserSubscription = {
+    subscriptionId: string;
     customerId: string;
     sessionId: string;
     planId: string;

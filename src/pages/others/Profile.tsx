@@ -3,12 +3,13 @@ import { styled } from '@mui/system';
 import { DecryptData } from '../../helper/EncryptDecrypt';
 import axios from 'axios';
 import { REACT_APP_BASE_URL } from '../../config/App.config';
+import { showToast } from '../../helper/Toast';
 
 const ProfileContainer = styled(Container)({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: '100vh',
+    minHeight: '80vh',
 });
 
 const ProfilePaper = styled(Paper)({
@@ -45,26 +46,34 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
                 headers: headers,
             });
             window.location.href = response?.data?.data?.url;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error opening billing portal:', error);
-        }
+            showToast({
+                message: error?.response?.data?.message,
+                type: 'error',
+                durationTime: 4000,
+                position: 'top-center',
+            });
+        };
     };
 
     return (
-        <ProfileContainer>
-            <ProfilePaper>
-                <ProfileAvatar alt="User Avatar" src="/path/to/avatar.jpg" />
-                <Typography variant="h5" component="h1">
-                    {_USER_DATA?.name}
-                </Typography>
-                <Typography variant="body1" color="textSecondary">
-                    {_USER_DATA?.email}
-                </Typography>
-                <Button variant="contained" color="primary" style={{ marginTop: '5rem' }} onClick={handleViewPlan}>
-                    View My Plan
-                </Button>
-            </ProfilePaper>
-        </ProfileContainer>
+        <>
+            <ProfileContainer>
+                <ProfilePaper>
+                    <ProfileAvatar alt="User Avatar" src="/path/to/avatar.jpg" />
+                    <Typography variant="h5" component="h1">
+                        {_USER_DATA?.name}
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                        {_USER_DATA?.email}
+                    </Typography>
+                    <Button variant="contained" color="primary" style={{ marginTop: '5rem' }} onClick={handleViewPlan}>
+                        View My Plan
+                    </Button>
+                </ProfilePaper>
+            </ProfileContainer>
+        </>
     );
 };
 
