@@ -51,9 +51,10 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
 
     const user: string | null = window.localStorage.getItem("user");
     const _USER_DATA = DecryptData(user ?? 'null');
-    const [isActive, setIsActive] = useState<boolean>()
+    const [isActive, setIsActive] = useState<boolean>(_USER_DATA?.subscription?.planId === plan?.subscription?.stripe_price_id);
+    const [isSubscribed, setIsSubscribed] = useState<boolean>(_USER_DATA?.is_subscribed);
 
-    // Payment integration
+    // handlePayment
     const handlePayment = async () => {
         try {
             const stripe = await loadStripe(REACT_APP_PUBLISHABLE_KEY);
@@ -91,9 +92,53 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
         }
     };
 
+    // handleUpgrade
+    const handleUpgrade = async () => {
+        try {
+            const stripe = await loadStripe(REACT_APP_PUBLISHABLE_KEY);
+            if (!stripe) {
+                throw new Error("Stripe could not be loaded.");
+            }
+
+            const body = {
+                product: plan,
+            };
+
+            const headers = {
+                "Content-Type": "application/json",
+                "authorization": `Bearer ${_TOKEN}`
+            };
+
+            const response = await axios.post(`${REACT_APP_BASE_URL}/user/api/v1/update-subscription`, body, { headers });
+
+            // Check if session ID is present in the response
+            const session = response.data;
+            if (!session || !session.sessionId) {
+                throw new Error("Session ID is missing in the response.");
+            }
+
+            const result = await stripe.redirectToCheckout({
+                sessionId: session.sessionId
+            });
+
+            if (result?.error) {
+                console.error("Redirect to checkout error:", result.error);
+            }
+        } catch (error: any) {
+            console.error("Error in upgrade integration:", error);
+            showToast({
+                message: error?.response?.data?.message || error.message,
+                type: 'error',
+                durationTime: 4000,
+                position: 'top-center',
+            });
+        }
+    };
+
     useEffect(() => {
         setIsActive(_USER_DATA?.subscription?.planId === plan?.subscription?.stripe_price_id);
-    }, [_USER_DATA?.subscription?.planId, plan?.subscription?.stripe_price_id]);
+        setIsSubscribed(_USER_DATA?.is_subscribed);
+    }, [_USER_DATA?.subscription?.planId, plan?.subscription?.stripe_price_id, _USER_DATA?.is_subscribed]);
 
     return (
         <>
@@ -150,7 +195,7 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
                             <li style={{ marginBottom: '10px' }}>
                                 <Typography variant="body1">
                                     Please contact us at{' '}
-                                    <Link to={`mailto:admin@blocksml.com`} style={{ color: '#0074D4' }}>
+                                    <Link to={`mailto: admin@blocksml.com`} style={{ color: '#0074D4' }}>
                                         admin@blocksml.com
                                     </Link>
                                 </Typography>
@@ -171,7 +216,12 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
                             <ActiveDiv sx={{ display: 'flex', justifyContent: 'center' }}>Subscribed</ActiveDiv>
                             : <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                                 {plan?.subscription?.name !== 'Custom' ? (
-                                    <PlanButton variant="contained" onClick={handlePayment}>Subscribe</PlanButton>
+                                    <>
+                                        {isSubscribed ?
+                                            <PlanButton variant="contained" onClick={handleUpgrade} style={{ marginLeft: '10px' }}>Update</PlanButton>
+                                            : <PlanButton variant="contained" onClick={handlePayment}>Subscribe</PlanButton>
+                                        }
+                                    </>
                                 ) : (
                                     <PlanButton variant="contained">Contact Us</PlanButton>
                                 )}
