@@ -4,7 +4,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Dispatch } from "redux";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { paymentSuccess } from "../../services/slices/PaymentSlice";
+import { paymentSuccess } from "../../services/slices/SubscriptionSlice";
 import { DecryptData } from "../../helper/EncryptDecrypt";
 import { useEffect, useMemo } from "react";
 import { getUserDetails } from "../../services/slices/AuthSlice";

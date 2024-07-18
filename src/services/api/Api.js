@@ -35,3 +35,7 @@ export const GETSUBSPLANS = (header) => API.get("/user/api/v1/get-subscription-p
 export const GETUSERDETAILS = (header) => API.get("/user/api/v1/get-user-details", header);
 // Payment suceess
 export const PAYMENTSUCCESS = (_sessionID, header) => API.post("/user/api/v1/payment-success", _sessionID, header);
+// Cancel subscription
+export const CANCELSUB = (header) => API.post("/user/api/v1/cancel-subscription", header);
+// Get sub details
+export const GETSUBDETAILS = (header) => API.get("/user/api/v1/get-subscription-details", header);

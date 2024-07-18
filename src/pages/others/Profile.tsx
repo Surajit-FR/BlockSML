@@ -1,9 +1,13 @@
-import { Container, Paper, Typography, Avatar, Button } from '@mui/material';
+import { Container, Paper, Typography, Avatar, Button, Box } from '@mui/material';
 import { styled } from '@mui/system';
 import { DecryptData } from '../../helper/EncryptDecrypt';
 import axios from 'axios';
 import { REACT_APP_BASE_URL } from '../../config/App.config';
 import { showToast } from '../../helper/Toast';
+import { Dispatch } from 'redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { cancelSub, getSubDetails } from '../../services/slices/SubscriptionSlice';
+import { useEffect, useMemo } from 'react';
 
 const ProfileContainer = styled(Container)({
     display: 'flex',
@@ -17,8 +21,9 @@ const ProfilePaper = styled(Paper)({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    height: 400,
+    minHeight: '480px', // Adjusted height to accommodate buttons within the card
     width: 400,
+    textAlign: 'center', // Added to center align content
 });
 
 const ProfileAvatar = styled(Avatar)({
@@ -34,8 +39,15 @@ type profilePage_props = {
 const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
     const user: string | null = window.localStorage.getItem("user");
     const _USER_DATA = DecryptData(user ?? 'null');
+    const header = useMemo(() => ({
+        headers: {
+            Authorization: `Bearer ${_TOKEN}`
+        }
+    }), [_TOKEN]);
+    const { subs_details_data } = useSelector((state: any) => state.subscriptionSlice);
+    const dispatch: Dispatch<any> = useDispatch();
 
-
+    // handleViewPlan func.
     const handleViewPlan = async () => {
         const headers = {
             "Content-Type": "application/json",
@@ -47,7 +59,6 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
             });
             window.location.href = response?.data?.data?.url;
         } catch (error: any) {
-            console.error('Error opening billing portal:', error);
             showToast({
                 message: error?.response?.data?.message,
                 type: 'error',
@@ -56,6 +67,16 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
             });
         };
     };
+
+    // handleCancelSubscription func.
+    const handleCancelSubscription = () => {
+        dispatch(cancelSub(header));
+    };
+
+    useEffect(() => {
+        dispatch(getSubDetails(header))
+    }, [dispatch, header]);
+
 
     return (
         <>
@@ -68,9 +89,35 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
                     <Typography variant="body1" color="textSecondary">
                         {_USER_DATA?.email}
                     </Typography>
-                    <Button variant="contained" color="primary" style={{ marginTop: '5rem' }} onClick={handleViewPlan}>
-                        View My Plan
-                    </Button>
+                    {subs_details_data && (
+                        <Box sx={{ marginTop: "25px" }}>
+                            <Typography variant="h4" color="textSecondary">
+                                Plan Details
+                            </Typography>
+                            <Typography variant="subtitle1">
+                                Package Name: {subs_details_data?.product?.name}
+                            </Typography>
+                            <Typography variant="subtitle1">
+                                Amount: ${subs_details_data?.plan?.amount / 100} USD/month
+                            </Typography>
+                            <Typography variant="subtitle1">
+                                Start Date: {new Date(subs_details_data?.subscription?.start_date * 1000).toLocaleDateString()}
+                            </Typography>
+                            <Typography variant="subtitle1">
+                                End Date: {new Date(subs_details_data?.subscription?.current_period_end * 1000).toLocaleDateString()}
+                            </Typography>
+                        </Box>
+                    )}
+                    <div style={{ marginTop: '2rem' }}>
+                        <Button variant="contained" color="primary" style={{ marginRight: '1rem' }} onClick={handleViewPlan}>
+                            View Plan
+                        </Button>
+                        {_USER_DATA?.is_subscribed &&
+                            <Button variant="contained" color="secondary" onClick={handleCancelSubscription}>
+                                Cancel Plan
+                            </Button>
+                        }
+                    </div>
                 </ProfilePaper>
             </ProfileContainer>
         </>

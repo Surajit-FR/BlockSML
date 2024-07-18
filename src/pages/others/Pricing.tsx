@@ -3,7 +3,7 @@ import PlanCard from '../../components/core/pricing/PlanCard';
 import { Dispatch } from 'redux';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
-import { getSubsPlans } from '../../services/slices/PaymentSlice';
+import { getSubsPlans } from '../../services/slices/SubscriptionSlice';
 import { CustomHeadersType, SubscriptionPlanData } from '../../config/DataTypes';
 
 type picing_props = {
@@ -13,7 +13,7 @@ type picing_props = {
 const Pricing = ({ header }: picing_props): JSX.Element => {
     const [plans, setPlans] = useState<Array<SubscriptionPlanData>>([])
     const dispatch: Dispatch<any> = useDispatch();
-    const { subsPlan_data } = useSelector((state: any) => state.paymentSlice);
+    const { subsPlan_data } = useSelector((state: any) => state.subscriptionSlice);
 
     useEffect(() => {
         dispatch(getSubsPlans(header));
