@@ -2,12 +2,11 @@ import { Box, Button, Card, CardActions, CardContent, Typography } from "@mui/ma
 import { styled, darken } from '@mui/system';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Dispatch } from "redux";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { paymentSuccess } from "../../services/slices/SubscriptionSlice";
 import { DecryptData } from "../../helper/EncryptDecrypt";
-import { useEffect, useMemo } from "react";
-import { getUserDetails } from "../../services/slices/AuthSlice";
+import { useCallback, useEffect, useMemo } from "react";
 
 const PlanButton = styled(Button)(({ theme }) => {
     const backgroundColor = '#00b200';
@@ -26,8 +25,7 @@ const PlanButton = styled(Button)(({ theme }) => {
 });
 
 const Success = (): JSX.Element => {
-    const { user_data } = useSelector((state: any) => state.authSlice);
-    const _sessionID = user_data?.subscription?.sessionId;
+    const { _sessionID } = useParams();
 
     const token: string | null = window.localStorage.getItem("token");
     const _TOKEN = DecryptData(token ?? 'null');
@@ -42,55 +40,57 @@ const Success = (): JSX.Element => {
     const navigate: any = useNavigate();
 
     // handleProceed func.
-    const handleProceed = () => {
-        dispatch(paymentSuccess({ _sessionID, header, navigate }));
-    }
+    const handleProceed = useCallback(() => {
+        dispatch(paymentSuccess({ _sessionID, header }));
+    }, [_sessionID, header, dispatch]);
 
     useEffect(() => {
-        dispatch(getUserDetails(header));
-    }, [dispatch, header]);
+        handleProceed();
+    }, [handleProceed]);
 
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-                flexDirection: 'column',
-                textAlign: 'center',
-            }}
-        >
-            <Card sx={{
-                width: 500,
-                height: 500,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: "#e7ffd5",
-            }}>
-                <CheckCircleOutlineIcon sx={{ fontSize: 100, color: '#00b200', mb: 2 }} />
-                <CardContent>
-                    <Typography gutterBottom variant="h5" component="div">
-                        Payment Successfull
-                    </Typography>
-                </CardContent>
-                <CardActions
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: '100%'
-                    }}
-                >
-                    <PlanButton size="medium" color="primary" onClick={handleProceed}>
-                        Proceed
-                    </PlanButton>
-                </CardActions>
-            </Card>
-        </Box>
+        <>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100vh',
+                    flexDirection: 'column',
+                    textAlign: 'center',
+                }}
+            >
+                <Card sx={{
+                    width: 500,
+                    height: 500,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: "#e7ffd5",
+                }}>
+                    <CheckCircleOutlineIcon sx={{ fontSize: 100, color: '#00b200', mb: 2 }} />
+                    <CardContent>
+                        <Typography gutterBottom variant="h5" component="div">
+                            Payment Successfull
+                        </Typography>
+                    </CardContent>
+                    <CardActions
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%'
+                        }}
+                    >
+                        <PlanButton size="medium" color="primary" onClick={() => navigate('/pricing')}>
+                            Proceed
+                        </PlanButton>
+                    </CardActions>
+                </Card>
+            </Box>
+        </>
     );
 };
 

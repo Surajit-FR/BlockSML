@@ -21,7 +21,7 @@ root.render(
       <Routes>
         <Route element={<ProtectedOne />}>
           <Route path='*' element={<App />} />
-          <Route path='/success' element={<Success />} />
+          <Route path='/success/:_sessionID' element={<Success />} />
           <Route path='/cancel' element={<Cancel />} />
         </Route>
         <Route path='/login' element={<Login />} />

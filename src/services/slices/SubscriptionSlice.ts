@@ -19,7 +19,7 @@ export const getSubsPlans = createAsyncThunk("/user/api/get-subscription-plans",
 });
 
 // paymentSuccess thunk
-export const paymentSuccess = createAsyncThunk("/user/api/v1/payment-success", async ({ _sessionID, header, navigate }: PaymentSuccessParams, { rejectWithValue }): Promise<any> => {
+export const paymentSuccess = createAsyncThunk("/user/api/v1/payment-success", async ({ _sessionID, header }: PaymentSuccessParams, { rejectWithValue }): Promise<any> => {
     try {
         const response = await PAYMENTSUCCESS({ _sessionID }, header);
         const result: any = response?.data;
@@ -29,7 +29,6 @@ export const paymentSuccess = createAsyncThunk("/user/api/v1/payment-success", a
 
             window.localStorage.setItem("token", token);
             window.localStorage.setItem("user", user);
-            navigate("/pricing");
         };
     } catch (exc: any) {
         const err: any = rejectWithValue(exc.response.data);

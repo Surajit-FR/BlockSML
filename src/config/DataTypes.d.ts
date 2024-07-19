@@ -149,8 +149,7 @@ export interface SubscriptionPlanData {
 // PaymentSuccessParams
 export type PaymentSuccessParams = {
     header: CustomHeadersType;
-    navigate: any;
-    _sessionID: string;
+    _sessionID: string | undefined;
 }
 
 // Common response type for authentication

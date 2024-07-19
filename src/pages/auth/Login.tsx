@@ -4,11 +4,13 @@ import { Container, Grid, Box, TextField, Button, Typography, Divider, IconButto
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { Dispatch } from 'redux';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../services/slices/AuthSlice';
 import { loginValidationSchema } from '../../helper/FormValidation';
+import LoaderSpinner from '../../util/LoaderSpinner';
 
 const Login = (): JSX.Element => {
+    const { auth_loading } = useSelector((state: any) => state.authSlice);
     const [showPassword, setShowPassword] = useState(false);
 
     const dispatch: Dispatch<any> = useDispatch();
@@ -31,6 +33,11 @@ const Login = (): JSX.Element => {
 
     return (
         <>
+            {/* Loader */}
+            <LoaderSpinner
+                loading={auth_loading}
+            />
+
             <Container maxWidth="lg" style={{ height: '100vh' }}>
                 <Grid container justifyContent="center" alignItems="center" style={{ height: '100%' }}>
                     <Grid item md={6} lg={6} marginRight={10}>
