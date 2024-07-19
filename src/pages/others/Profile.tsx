@@ -74,8 +74,10 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
     };
 
     useEffect(() => {
-        dispatch(getSubDetails(header))
-    }, [dispatch, header]);
+        if (_USER_DATA?.subscription?.customerId) {
+            dispatch(getSubDetails(header));
+        }
+    }, [dispatch, header, _USER_DATA?.subscription?.customerId]);
 
 
     return (
@@ -89,7 +91,7 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
                     <Typography variant="body1" color="textSecondary">
                         {_USER_DATA?.email}
                     </Typography>
-                    {subs_details_data && (
+                    {_USER_DATA?.is_subscribed ?
                         <Box sx={{ marginTop: "25px" }}>
                             <Typography variant="h4" color="textSecondary">
                                 Plan Details
@@ -107,17 +109,20 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
                                 End Date: {new Date(subs_details_data?.subscription?.current_period_end * 1000).toLocaleDateString()}
                             </Typography>
                         </Box>
-                    )}
-                    <div style={{ marginTop: '2rem' }}>
-                        <Button variant="contained" color="primary" style={{ marginRight: '1rem' }} onClick={handleViewPlan}>
-                            View Plan
-                        </Button>
-                        {_USER_DATA?.is_subscribed &&
+                        : <Typography variant="h4" color="textSecondary" sx={{ marginTop: 10 }}>
+                            No Plan Activated
+                        </Typography>
+                    }
+                    {_USER_DATA?.is_subscribed &&
+                        <div style={{ marginTop: '2rem' }}>
+                            <Button variant="contained" color="primary" style={{ marginRight: '1rem' }} onClick={handleViewPlan}>
+                                View Plan
+                            </Button>
                             <Button variant="contained" color="secondary" onClick={handleCancelSubscription}>
                                 Cancel Plan
                             </Button>
-                        }
-                    </div>
+                        </div>
+                    }
                 </ProfilePaper>
             </ProfileContainer>
         </>

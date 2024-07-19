@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { getSubsPlans } from '../../services/slices/SubscriptionSlice';
 import { CustomHeadersType, SubscriptionPlanData } from '../../config/DataTypes';
+import CustomPlanCard from '../../components/core/pricing/CustomPlanCard';
 
 type picing_props = {
     header: CustomHeadersType
@@ -25,22 +26,29 @@ const Pricing = ({ header }: picing_props): JSX.Element => {
 
 
     return (
-        <Container
-            maxWidth={false}
-            sx={{ px: 5, py: 5, mx: 'auto' }}
-        >
-            <Grid container spacing={3}>
-                {
-                    plans?.map((plan, index) => {
-                        return (
-                            <Grid item xs={12} sm={6} md={3} key={index}>
-                                <PlanCard plan={plan} />
-                            </Grid>
-                        )
-                    })
-                }
-            </Grid>
-        </Container>
+        <>
+            <Container
+                maxWidth={false}
+                sx={{ px: 5, py: 5, mx: 'auto' }}
+            >
+                <Grid container spacing={3}>
+                    {
+                        plans?.map((plan, index) => {
+                            return (
+                                <Grid item xs={12} sm={6} md={3} key={index}>
+                                    <PlanCard plan={plan} />
+                                </Grid>
+                            )
+                        })
+                    }
+
+                    {/* Add CustomPlanCard here */}
+                    <Grid item xs={12} sm={6} md={3}>
+                        <CustomPlanCard />
+                    </Grid>
+                </Grid>
+            </Container>
+        </>
     );
 };
 

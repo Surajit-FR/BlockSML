@@ -134,8 +134,13 @@ export interface Subscription {
 
 export interface SubscriptionPlanData {
     _id: string;
-    user: number;
-    subscription: Subscription;
+    name: string;
+    stripe_price_id: string;
+    trial_days: number;
+    is_trial: boolean;
+    amount: number;
+    type: number;
+    user_count: number;
     chat_inference: string;
     image_generation: number;
     youtube_video_summarization: string;
