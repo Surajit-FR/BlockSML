@@ -22,7 +22,7 @@ root.render(
         <Route element={<ProtectedOne />}>
           <Route path='*' element={<App />} />
           <Route path='/success/:_sessionID' element={<Success />} />
-          <Route path='/cancel' element={<Cancel />} />
+          <Route path='/cancel/:_sessionID' element={<Cancel />} />
         </Route>
         <Route path='/login' element={<Login />} />
         <Route path='/signup' element={<Signup />} />

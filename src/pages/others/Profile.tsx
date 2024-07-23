@@ -100,7 +100,7 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
                                 Package Name: {subs_details_data?.product?.name}
                             </Typography>
                             <Typography variant="subtitle1">
-                                Amount: ${subs_details_data?.plan?.amount / 100} USD/month
+                                Amount: ${subs_details_data?.subscription?.plan?.amount / 100} USD/month
                             </Typography>
                             <Typography variant="subtitle1">
                                 Start Date: {new Date(subs_details_data?.subscription?.start_date * 1000).toLocaleDateString()}

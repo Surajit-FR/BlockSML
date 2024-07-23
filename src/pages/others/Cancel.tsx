@@ -1,7 +1,12 @@
 import { Box, Button, Card, CardActions, CardContent, Typography } from "@mui/material";
 import { styled, darken } from '@mui/system';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Dispatch } from "redux";
+import { DecryptData } from "../../helper/EncryptDecrypt";
+import { useCallback, useEffect, useMemo } from "react";
+import { paymentSuccess } from "../../services/slices/SubscriptionSlice";
 
 const PlanButton = styled(Button)(({ theme }) => {
     const backgroundColor = '#b20000';
@@ -21,6 +26,27 @@ const PlanButton = styled(Button)(({ theme }) => {
 
 const Cancel = (): JSX.Element => {
     const navigate: any = useNavigate();
+    const { _sessionID } = useParams();
+
+    const token: string | null = window.localStorage.getItem("token");
+    const _TOKEN = DecryptData(token ?? 'null');
+    const header = useMemo(() => ({
+        headers: {
+            Authorization: `Bearer ${_TOKEN}`
+        }
+    }), [_TOKEN]);
+
+
+    const dispatch: Dispatch<any> = useDispatch();
+
+    // handleProceed func.
+    const handleProceed = useCallback(() => {
+        dispatch(paymentSuccess({ _sessionID, header }));
+    }, [_sessionID, header, dispatch]);
+
+    useEffect(() => {
+        handleProceed();
+    }, [handleProceed]);
 
     return (
         <Box
