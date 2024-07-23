@@ -26,9 +26,9 @@ export const API = axios.create({ baseURL: REACT_APP_BASE_URL });
 // );
 
 // Login
-export const LOGIN = (data) => API.post("/api/v1/login", data);
+export const LOGIN = (data) => API.post("/api/v1/auth/login", data);
 // Signup
-export const SIGNUP = (data) => API.post("/api/v1/signup", data);
+export const SIGNUP = (data) => API.post("/api/v1/auth/signup", data);
 // Get subscription plans
 export const GETSUBSPLANS = (header) => API.get("/user/api/v1/get-subscription-plans", header);
 // Get user details

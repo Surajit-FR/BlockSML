@@ -5,7 +5,7 @@ import { EncryptData } from "../../helper/EncryptDecrypt";
 import { showToast } from "../../helper/Toast";
 
 // loginUser thunk
-export const loginUser = createAsyncThunk("/api/login", async ({ data, navigate }: UserAuth_Props, { rejectWithValue }): Promise<AuthResponse | any> => {
+export const loginUser = createAsyncThunk("/api/v1/auth/login", async ({ data, navigate }: UserAuth_Props, { rejectWithValue }): Promise<AuthResponse | any> => {
     try {
         const response = await LOGIN(data);
         const result: any = response?.data;
@@ -32,7 +32,7 @@ export const loginUser = createAsyncThunk("/api/login", async ({ data, navigate 
 });
 
 // signup thunk
-export const signupUser = createAsyncThunk("/api/signup", async ({ data, navigate }: UserAuth_Props, { rejectWithValue }): Promise<AuthResponse | any> => {
+export const signupUser = createAsyncThunk("/api/v1/auth/signup", async ({ data, navigate }: UserAuth_Props, { rejectWithValue }): Promise<AuthResponse | any> => {
     try {
         const response = await SIGNUP(data);
         const result: any = response?.data;
