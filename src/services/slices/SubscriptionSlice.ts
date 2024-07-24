@@ -37,7 +37,7 @@ export const paymentSuccess = createAsyncThunk("/user/api/v1/payment-success", a
 });
 
 // cancelSub thunk
-export const cancelSub = createAsyncThunk("/user/api/v1/cancel-subscription", async (header: CustomHeadersType, { rejectWithValue }): Promise<any> => {
+export const cancelSub = createAsyncThunk("/user/api/v1/cancel-subscription", async (header: CustomHeadersType, { rejectWithValue, dispatch }): Promise<any> => {
     try {
         const response = await CANCELSUB(header);
         const result: any = response?.data;
@@ -53,6 +53,8 @@ export const cancelSub = createAsyncThunk("/user/api/v1/cancel-subscription", as
 
             window.localStorage.setItem("token", token);
             window.localStorage.setItem("user", user);
+
+            dispatch(getSubDetails(header));
         };
     } catch (exc: any) {
         const err: any = rejectWithValue(exc.response.data);

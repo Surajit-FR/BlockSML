@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Paper, Typography, Avatar, Button, Box } from '@mui/material';
 import { styled } from '@mui/system';
 import { DecryptData } from '../../helper/EncryptDecrypt';
@@ -7,7 +8,7 @@ import { showToast } from '../../helper/Toast';
 import { Dispatch } from 'redux';
 import { useDispatch, useSelector } from 'react-redux';
 import { cancelSub, getSubDetails } from '../../services/slices/SubscriptionSlice';
-import { useEffect, useMemo } from 'react';
+import ConfModal from '../../util/ConfModal';
 
 const ProfileContainer = styled(Container)({
     display: 'flex',
@@ -21,9 +22,9 @@ const ProfilePaper = styled(Paper)({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    minHeight: '480px', // Adjusted height to accommodate buttons within the card
+    minHeight: '480px',
     width: 400,
-    textAlign: 'center', // Added to center align content
+    textAlign: 'center',
 });
 
 const ProfileAvatar = styled(Avatar)({
@@ -32,11 +33,11 @@ const ProfileAvatar = styled(Avatar)({
     marginBottom: '1rem',
 });
 
-type profilePage_props = {
+type ProfilePageProps = {
     _TOKEN: string;
 }
 
-const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
+const Profile = ({ _TOKEN }: ProfilePageProps): JSX.Element => {
     const user: string | null = window.localStorage.getItem("user");
     const _USER_DATA = DecryptData(user ?? 'null');
     const header = useMemo(() => ({
@@ -47,7 +48,8 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
     const { subs_details_data } = useSelector((state: any) => state.subscriptionSlice);
     const dispatch: Dispatch<any> = useDispatch();
 
-    // handleViewPlan func.
+    const [isModalOpen, setModalOpen] = useState(false);
+
     const handleViewPlan = async () => {
         const headers = {
             "Content-Type": "application/json",
@@ -68,9 +70,17 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
         };
     };
 
-    // handleCancelSubscription func.
-    const handleCancelSubscription = () => {
+    const handleOpenModal = () => {
+        setModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setModalOpen(false);
+    };
+
+    const handleConfirmCancel = () => {
         dispatch(cancelSub(header));
+        setModalOpen(false);
     };
 
     useEffect(() => {
@@ -78,7 +88,6 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
             dispatch(getSubDetails(header));
         }
     }, [dispatch, header, _USER_DATA?.subscription?.customerId]);
-
 
     return (
         <>
@@ -118,13 +127,23 @@ const Profile = ({ _TOKEN }: profilePage_props): JSX.Element => {
                             <Button variant="contained" color="primary" style={{ marginRight: '1rem' }} onClick={handleViewPlan}>
                                 View Plan
                             </Button>
-                            <Button variant="contained" color="secondary" onClick={handleCancelSubscription}>
+                            <Button variant="contained" color="secondary" onClick={handleOpenModal}>
                                 Cancel Plan
                             </Button>
                         </div>
                     }
                 </ProfilePaper>
             </ProfileContainer>
+
+            {/* Confirmation Modal */}
+            <ConfModal
+                modalId="confirm-cancel-modal"
+                modalHeading="Confirm Cancellation"
+                modalContent="Are you sure you want to cancel your subscription?"
+                onDelete={handleConfirmCancel}
+                open={isModalOpen}
+                onClose={handleCloseModal}
+            />
         </>
     );
 };
