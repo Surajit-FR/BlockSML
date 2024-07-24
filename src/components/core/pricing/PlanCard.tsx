@@ -2,14 +2,18 @@ import { Button, Card, CardContent, CardHeader, Typography, Box } from '@mui/mat
 import { styled, darken } from '@mui/system';
 import { loadStripe } from '@stripe/stripe-js';
 import { REACT_APP_BASE_URL, REACT_APP_PUBLISHABLE_KEY } from '../../../config/App.config';
-import { SubscriptionPlanData } from '../../../config/DataTypes';
-import { DecryptData } from '../../../helper/EncryptDecrypt';
+import { CustomHeadersType, SubscriptionPlanData } from '../../../config/DataTypes';
+import { DecryptData, EncryptData } from '../../../helper/EncryptDecrypt';
 import { useEffect, useState } from 'react';
 import { showToast } from '../../../helper/Toast';
 import axios from 'axios';
+import { Dispatch } from 'redux';
+import { useDispatch } from 'react-redux';
+import { getSubsPlans } from '../../../services/slices/SubscriptionSlice';
 
 interface PlanProps {
     plan: SubscriptionPlanData;
+    header: CustomHeadersType;
 };
 
 const PlanButton = styled(Button)(({ theme }) => {
@@ -44,7 +48,7 @@ const ActiveDiv = styled("div")(({ theme }) => {
 });
 
 
-const PlanCard = ({ plan }: PlanProps): JSX.Element => {
+const PlanCard = ({ plan, header }: PlanProps): JSX.Element => {
     const token: string | null = window.localStorage.getItem("token");
     const _TOKEN = DecryptData(token ?? 'null');
 
@@ -52,6 +56,8 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
     const _USER_DATA = DecryptData(user ?? 'null');
     const [isActive, setIsActive] = useState<boolean>(_USER_DATA?.subscription?.planId === plan?.stripe_price_id);
     const [isSubscribed, setIsSubscribed] = useState<boolean>(_USER_DATA?.is_subscribed);
+
+    const dispatch: Dispatch<any> = useDispatch();
 
     // handlePayment
     const handlePayment = async () => {
@@ -95,33 +101,36 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
     const handleUpgrade = async () => {
         try {
             const stripe = await loadStripe(REACT_APP_PUBLISHABLE_KEY);
-            if (!stripe) {
-                throw new Error("Stripe could not be loaded.");
-            }
+            if (!stripe) throw new Error("Stripe could not be loaded.");
 
-            const body = {
-                product: plan,
-            };
-
-            const headers = {
-                "Content-Type": "application/json",
-                "authorization": `Bearer ${_TOKEN}`
-            };
+            const body = { product: plan };
+            const headers = { "Content-Type": "application/json", "authorization": `Bearer ${_TOKEN}` };
 
             const response = await axios.post(`${REACT_APP_BASE_URL}/user/api/v1/update-subscription`, body, { headers });
+            const result = response.data;
 
-            // Check if session ID is present in the response
-            const session = response.data;
-            if (!session || !session.sessionId) {
-                throw new Error("Session ID is missing in the response.");
-            }
+            if (result.success) {
+                showToast({
+                    message: "Subscription updated successfully!",
+                    type: 'success',
+                    durationTime: 4000,
+                    position: 'top-center'
+                });
+                const user = EncryptData(result?.data);
+                const token = EncryptData(result?.token);
 
-            const result = await stripe.redirectToCheckout({
-                sessionId: session.sessionId
-            });
+                window.localStorage.setItem("token", token);
+                window.localStorage.setItem("user", user);
 
-            if (result?.error) {
-                console.error("Redirect to checkout error:", result.error);
+                dispatch(getSubsPlans(header));
+            } else {
+                showToast({
+                    message: result.message || "Unexpected response from server.",
+                    type: 'error',
+                    durationTime: 4000,
+                    position: 'top-center'
+
+                });
             }
         } catch (error: any) {
             console.error("Error in upgrade integration:", error);
@@ -129,7 +138,7 @@ const PlanCard = ({ plan }: PlanProps): JSX.Element => {
                 message: error?.response?.data?.message || error.message,
                 type: 'error',
                 durationTime: 4000,
-                position: 'top-center',
+                position: 'top-center'
             });
         }
     };
