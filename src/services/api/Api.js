@@ -39,3 +39,5 @@ export const PAYMENTSUCCESS = (_sessionID, header) => API.post("/user/api/v1/pay
 export const CANCELSUB = (header) => API.post("/user/api/v1/cancel-subscription", header);
 // Get sub details
 export const GETSUBDETAILS = (header) => API.get("/user/api/v1/get-subscription-details", header);
+// Request refund
+export const REQREFUND = (header) => API.post("/user/api/v1/request-refund", header);

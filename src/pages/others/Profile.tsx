@@ -7,7 +7,7 @@ import { REACT_APP_BASE_URL } from '../../config/App.config';
 import { showToast } from '../../helper/Toast';
 import { Dispatch } from 'redux';
 import { useDispatch, useSelector } from 'react-redux';
-import { cancelSub, getSubDetails } from '../../services/slices/SubscriptionSlice';
+import { cancelSub, getSubDetails, requestRefund } from '../../services/slices/SubscriptionSlice';
 import ConfModal from '../../util/ConfModal';
 
 const ProfileContainer = styled(Container)({
@@ -23,7 +23,7 @@ const ProfilePaper = styled(Paper)({
     flexDirection: 'column',
     alignItems: 'center',
     minHeight: '480px',
-    width: 400,
+    width: 800,
     textAlign: 'center',
 });
 
@@ -35,7 +35,7 @@ const ProfileAvatar = styled(Avatar)({
 
 type ProfilePageProps = {
     _TOKEN: string;
-}
+};
 
 const Profile = ({ _TOKEN }: ProfilePageProps): JSX.Element => {
     const user: string | null = window.localStorage.getItem("user");
@@ -49,6 +49,7 @@ const Profile = ({ _TOKEN }: ProfilePageProps): JSX.Element => {
     const dispatch: Dispatch<any> = useDispatch();
 
     const [isModalOpen, setModalOpen] = useState(false);
+    const [modalType, setModalType] = useState<'cancel' | 'refund' | null>(null);
 
     const handleViewPlan = async () => {
         const headers = {
@@ -56,9 +57,7 @@ const Profile = ({ _TOKEN }: ProfilePageProps): JSX.Element => {
             "Authorization": `Bearer ${_TOKEN}`
         };
         try {
-            const response = await axios.post(`${REACT_APP_BASE_URL}/user/api/v1/billing-portal`, {
-                headers: headers,
-            });
+            const response = await axios.post(`${REACT_APP_BASE_URL}/user/api/v1/billing-portal`, {}, { headers });
             window.location.href = response?.data?.data?.url;
         } catch (error: any) {
             showToast({
@@ -70,17 +69,33 @@ const Profile = ({ _TOKEN }: ProfilePageProps): JSX.Element => {
         };
     };
 
-    const handleOpenModal = () => {
+    const handleOpenCancelModal = () => {
+        setModalType('cancel');
+        setModalOpen(true);
+    };
+
+    const handleOpenRefundModal = () => {
+        setModalType('refund');
         setModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setModalOpen(false);
+        setModalType(null);
     };
 
     const handleConfirmCancel = () => {
         dispatch(cancelSub(header));
-        setModalOpen(false);
+        handleCloseModal();
+    };
+
+    const handleConfirmRefund = () => {
+        handleRequestRefund();
+        handleCloseModal();
+    };
+
+    const handleRequestRefund = () => {
+        dispatch(requestRefund(header));
     };
 
     useEffect(() => {
@@ -122,25 +137,32 @@ const Profile = ({ _TOKEN }: ProfilePageProps): JSX.Element => {
                             No Plan Activated
                         </Typography>
                     }
-                    {_USER_DATA?.is_subscribed &&
-                        <div style={{ marginTop: '2rem' }}>
-                            <Button variant="contained" color="primary" style={{ marginRight: '1rem' }} onClick={handleViewPlan}>
+                    <Box sx={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
+                        {_USER_DATA?.is_subscribed &&
+                            <Button variant="contained" color="primary" onClick={handleViewPlan}>
                                 View Plan
                             </Button>
-                            <Button variant="contained" color="secondary" onClick={handleOpenModal}>
+                        }
+                        {_USER_DATA?.is_subscribed &&
+                            <Button variant="contained" color="secondary" onClick={handleOpenCancelModal}>
                                 Cancel Plan
                             </Button>
-                        </div>
-                    }
+                        }
+                        <Button variant="contained" color="error" onClick={handleOpenRefundModal}>
+                            Request Refund
+                        </Button>
+                    </Box>
                 </ProfilePaper>
             </ProfileContainer>
 
             {/* Confirmation Modal */}
             <ConfModal
-                modalId="confirm-cancel-modal"
-                modalHeading="Confirm Cancellation"
-                modalContent="Are you sure you want to cancel your subscription?"
-                onDelete={handleConfirmCancel}
+                modalId="confirm-action-modal"
+                modalHeading={modalType === 'cancel' ? "Confirm Cancellation" : "Request Refund"}
+                modalContent={modalType === 'cancel'
+                    ? "Are you sure you want to cancel your subscription?"
+                    : "Are you sure you want to request a refund? This action may be irreversible."}
+                onDelete={modalType === 'cancel' ? handleConfirmCancel : handleConfirmRefund}
                 open={isModalOpen}
                 onClose={handleCloseModal}
             />

@@ -84,7 +84,7 @@ const Success = (): JSX.Element => {
                             width: '100%'
                         }}
                     >
-                        <PlanButton size="medium" color="primary" onClick={() => navigate('/pricing')}>
+                        <PlanButton size="medium" color="primary" onClick={() => navigate('/')}>
                             Proceed
                         </PlanButton>
                     </CardActions>

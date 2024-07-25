@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { CANCELSUB, GETSUBDETAILS, GETSUBSPLANS, PAYMENTSUCCESS } from "../api/Api";
+import { CANCELSUB, GETSUBDETAILS, GETSUBSPLANS, PAYMENTSUCCESS, REQREFUND } from "../api/Api";
 import { CustomHeadersType, PaymentSuccessParams } from "../../config/DataTypes";
 import { EncryptData } from "../../helper/EncryptDecrypt";
 import { showToast } from "../../helper/Toast";
@@ -48,7 +48,7 @@ export const cancelSub = createAsyncThunk("/user/api/v1/cancel-subscription", as
                 message: result?.message,
                 type: 'success',
                 durationTime: 3000,
-                position: 'top-right',
+                position: 'top-center',
             });
 
             window.localStorage.setItem("token", token);
@@ -72,6 +72,31 @@ export const getSubDetails = createAsyncThunk("/user/api/v1/get-subscription-det
         };
     } catch (exc: any) {
         const err: any = rejectWithValue(exc.response.data);
+        return err;
+    }
+});
+
+// requestRefund thunk
+export const requestRefund = createAsyncThunk("/user/api/v1/request-refund", async (header: CustomHeadersType, { rejectWithValue }): Promise<any> => {
+    try {
+        const response = await REQREFUND(header);
+        const result: any = response?.data;
+        if (result?.success) {
+            showToast({
+                message: result?.message,
+                type: 'success',
+                durationTime: 3000,
+                position: 'top-center',
+            });
+        };
+    } catch (exc: any) {
+        const err: any = rejectWithValue(exc.response.data);
+        showToast({
+            message: err?.payload?.message,
+            type: 'error',
+            durationTime: 4000,
+            position: 'top-center',
+        });
         return err;
     }
 });
